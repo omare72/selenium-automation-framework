@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha tests/*.test.js tests/contactForm.js --reporter mochawesome --reporter-options reportDir=reports,reportFilename=report"
+    "test": "mocha tests/*.test.js --reporter mochawesome --reporter-options reportDir=reports,reportFilename=report"
   },
   "keywords": [],
   "author": "",

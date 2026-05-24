@@ -1,0 +1,441 @@
+{
+  "info": {
+    "_postman_id": "b407bde5-9ca8-4d64-9ecc-1eadaa7c835d",
+    "name": "MockApi",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "33051030",
+    "_collection_link": "https://go.postman.co/collection/33051030-b407bde5-9ca8-4d64-9ecc-1eadaa7c835d?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Create Products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let responseData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"status code is 201\", function(){\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"product id exists\", function(){\r",
+                  "    pm.expect(responseData.id).to.exist;\r",
+                  "});\r",
+                  "\r",
+                  "//pm.environment.set(\"productId\"+pm.info.response, responseData.id);\r",
+                  "pm.environment.set(\"productId\", responseData.id);\r",
+                  "pm.environment.set(\"title\", responseData.title);\r",
+                  "\r",
+                  "pm.test(\"Response time is below 1000ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Title is not empty\", function () {\r",
+                  "    pm.expect(responseData.title).to.not.be.empty;\r",
+                  "    });\r",
+                  "    \r",
+                  "pm.test(\"Title should not be null\", function () {\r",
+                  "    pm.expect(responseData.title).to.not.be.null;\r",
+                  "});    \r",
+                  "\r",
+                  "pm.test(\"Content-Type is JSON\", function () {\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\"))\r",
+                  "      .to.include(\"application/json\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "",
+                "value": "",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": null,\r\n  \"price\": {{price}}\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products"
+              ]
+            },
+            "description": "Creates a new product in the system.\n\nMethod: POST  \nExpected status: 201 Created\n\nValidations:\n\n- Product ID is generated and exists in response\n    \n- Title is not empty or null\n    \n- Content-Type is application/json\n    \n- Response time is under 1000ms\n    \n\nNotes:\n\n- Product ID and title are saved as environment variables (productId, title)  \n    for use in subsequent requests\n    \n- mockAPI generates random data regardless of request body —  \n    real API should validate required fields and return 400 for missing data"
+          },
+          "response": []
+        },
+        {
+          "name": "Get products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let responseData = pm.response.json();\r",
+                  "let productId = pm.environment.get(\"productId\") ;\r",
+                  "\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Id matches productId\", function(){\r",
+                  "    pm.expect(responseData.id).to.eql(productId);\r",
+                  "})\r",
+                  "\r",
+                  "pm.test(\"Title is correct\", function () {\r",
+                  "    pm.expect(responseData.title).to.eql(pm.environment.get(\"title\"));\r",
+                  "    //pm.expect(responseData.title).to.exist;\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}"
+              ]
+            },
+            "description": "Retrieves a single product by its ID from the MockAPI store.\n\n## Endpoint\n\n`GET https://69da7df626585bd92dd3ed90.mockapi.io/products/{{productId}}`\n\n## Path Variables\n\n| Variable | Description |\n| --- | --- |\n| `productId` | The unique identifier of the product to retrieve. Sourced from the `productId` environment variable. |\n\n## Response\n\nReturns a JSON object representing the product.\n\n### Example Response Body\n\n``` json\n{\n  \"id\": \"1\",\n  \"title\": \"Product Name\"\n}\n\n ```\n\n## Tests\n\nThe following assertions are run after the response is received:\n\n| Test | Description |\n| --- | --- |\n| Status code is 200 | Verifies the response status is `200 OK`. |\n| Id matches productId | Confirms the returned `id` matches the `productId` environment variable. |\n| Title is correct | Confirms the returned `title` matches the `title` environment variable. |"
+          },
+          "response": []
+        },
+        {
+          "name": "Update product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let responseData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Title is updated\", function () {\r",
+                  "    pm.expect(responseData.title).to.eql(\"Updated Product\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Id still exists\", function () {\r",
+                  "    pm.expect(responseData.id).to.eql(pm.environment.get(\"productId\"));\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\" : \"Updated Product\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}"
+              ]
+            },
+            "description": "## Update Product\n\nUpdates an existing product by its ID using a `PUT` request. The endpoint replaces the product's data with the provided request body and returns the updated product object.\n\n---\n\n### Method & URL\n\n```\nPUT https://69da7df626585bd92dd3ed90.mockapi.io/products/{{productId}}\n\n ```\n\n---\n\n### Path Variables\n\n| Variable | Description |\n| --- | --- |\n| `productId` | The unique identifier of the product to update. Sourced from the `productId` environment variable. |\n\n---\n\n### Request Body\n\nSend a JSON object with the fields to update.\n\n``` json\n{\n    \"title\": \"Updated Product\"\n}\n\n ```\n\n| Field | Type | Description |\n| --- | --- | --- |\n| `title` | `string` | The new title for the product. |\n\n---\n\n### Expected Response\n\n**Status:** `200 OK`\n\nReturns the updated product object.\n\n``` json\n{\n    \"id\": \"{{productId}}\",\n    \"title\": \"Updated Product\"\n}\n\n ```\n\n| Field | Type | Description |\n| --- | --- | --- |\n| `id` | `string` | The unique identifier of the product (unchanged). |\n| `title` | `string` | The updated title of the product. |\n\n---\n\n### Test Scripts\n\nThe following tests are automatically run after the response is received:\n\n| Test | Description |\n| --- | --- |\n| **Status code is 200** | Asserts that the response status code is `200 OK`. |\n| **Title is updated** | Asserts that `response.title` equals `\"Updated Product\"`. |\n| **Id still exists** | Asserts that `response.id` matches the `productId` environment variable. |"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "let responseData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Deleted item id matches\", function () {\r",
+                  "    pm.expect(responseData.id).to.eql(pm.environment.get(\"productId\"));\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response is valid\", function () {\r",
+                  "    pm.expect(responseData).to.be.an(\"object\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "products",
+                "{{productId}}"
+              ]
+            },
+            "description": "Deletes a product from the catalog by its unique ID.\n\n## Endpoint\n\n`DELETE https://69da7df626585bd92dd3ed90.mockapi.io/products/{{productId}}`\n\n## Path Variables\n\n| Variable | Description |\n|---|---|\n| `productId` | The unique identifier of the product to delete. Set via the `productId` environment variable. |\n\n## Responses\n\n| Status | Description |\n|---|---|\n| `200 OK` | Product was successfully deleted. Returns the deleted product object. |\n\n## Response Body (200)\n\nReturns the deleted product object. Example:\n\n```json\n{\n  \"id\": \"1\"\n}\n```\n\n## Tests\n\nThe following automated tests run after this request:\n\n- **Status code is 200** – Verifies the response status is `200`.\n- **Deleted item id matches** – Confirms the `id` in the response matches the `productId` environment variable.\n- **Response is valid** – Ensures the response body is a valid object."
+          },
+          "response": []
+        }
+      ],
+      "description": "Contains all API requests related to product management. This folder covers the full CRUD lifecycle for the `/products` resource on the MockAPI server, including:\n\n- **Create** a new product (POST)\n- **Retrieve** a product by ID (GET)\n- **Update** an existing product by ID (PUT)\n- **Delete** a product by ID (DELETE)\n\nAll requests that operate on a specific product use the `{{productId}}` environment variable to identify the target resource."
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "New Request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let responseData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Status code is 201\", function () {\r",
+                  "  pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.environment.set(\"userId\", responseData.id);\r",
+                  "\r",
+                  "pm.test(\"Id exists\", function () {\r",
+                  "    pm.expect(responseData.id).to.not.be.null;//better than using to.exist because it checks for null and undefined and that id exists\r",
+                  "    });\r",
+                  "\r",
+                  "pm.test(\"First Name exists\", function(){\r",
+                  "    pm.expect(responseData.firstName).to.exist;\r",
+                  "    pm.expect(responseData.firstName).to.not.be.empty;\r",
+                  "})    \r",
+                  "\r",
+                  "pm.environment.set(\"userName\", responseData.firstName);\r",
+                  "\r",
+                  "\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"firstName\": \"!@#$%^&*()\",\r\n  \"lastName\": \"!@#$%^&*()\",\r\n  \"email\": \"test@test.com\"\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            },
+            "description": "Creates a new user in the system.\n\n## Request\n\n**Method:** POST  \n**URL:** `{{baseUrl}}/users`\n\n### Headers\n\n| Key | Description |\n|-----|-------------|\n| `x-api-key` | API key required for authentication. |\n\n### Request Body\n\nSend a JSON object with the following fields:\n\n| Field | Type | Description |\n|-------|------|-------------|\n| `firstName` | string | The user's first name. |\n| `lastName` | string | The user's last name. |\n| `email` | string | The user's email address. |\n\n**Example:**\n```json\n{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\"\n}\n```\n\n## Response\n\nOn success, returns `201 Created` with the newly created user object, including the generated `id`.\n\n**Example response:**\n```json\n{\n  \"id\": \"abc123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\"\n}\n```\n\n## Post-Response Behaviour\n\n- Saves the new user's `id` to the `userId` environment variable.\n- Saves the new user's `firstName` to the `userName` environment variable."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let responseData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "    });\r",
+                  "\r",
+                  "pm.test(\"Response has correct schema\", function() {\r",
+                  "    pm.expect(responseData).to.have.property('id');\r",
+                  "    pm.expect(responseData).to.have.property('firstName');\r",
+                  "    pm.expect(responseData).to.have.property('lastName');\r",
+                  "    pm.expect(responseData).to.have.property('email');\r",
+                  "    pm.expect(responseData).to.have.property('password');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Id is a string\", function() {\r",
+                  "    pm.expect(responseData.id).to.be.a('string');\r",
+                  "    });\r",
+                  "pm.test(\"Email format is valid\", function(){\r",
+                  "    pm.expect(responseData.email).to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/);\r",
+                  "})    \r",
+                  "\r",
+                  "pm.test(\"Response time is acceptable\", function() {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+                  "    })\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "Retrieves a single user by their unique ID from the MockAPI server.\n\n**Method:** GET\n\n**URL:** `https://69da7df626585bd92dd3ed90.mockapi.io/users/{{userId}}`\n\n### Path / URL Variables\n\n| Variable | Description |\n|----------|-------------|\n| `userId` | The unique identifier of the user to retrieve. Set via the `userId` environment variable. |\n\n### Response\n\nReturns a JSON object representing the user. The expected response schema includes:\n\n| Field | Type | Description |\n|-------|------|-------------|\n| `id` | string | Unique identifier of the user |\n| `firstName` | string | First name of the user |\n| `lastName` | string | Last name of the user |\n| `email` | string | Email address of the user (must be a valid email format) |\n| `password` | string | Password of the user |\n\n### Tests\n\nThe following validations are run on the response:\n\n- Status code is `200`\n- Response body matches the expected schema (contains `id`, `firstName`, `lastName`, `email`, `password`)\n- `id` field is a string\n- `email` field is a valid email format\n- Response time is below `500ms`"
+          },
+          "response": []
+        }
+      ],
+      "description": "Contains all API requests related to user management. This folder covers the full CRUD lifecycle for the `/users` resource on the MockAPI server, including:\n\n- **Create** a new user (POST)\n    \n- **Retrieve** a user by ID (GET)\n    \n- **Update** an existing user by ID (PUT)\n    \n- **Delete** a user by ID (DELETE)\n    \n\nAll requests that operate on a specific user use the `{{userId}}` environment variable to identify the target resource."
+    },
+    {
+      "name": "Negative Tests",
+      "item": [
+        {
+          "name": "Negative Test",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404 for fake ID\", function () {\r",
+                  "  pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response confirms not found\", function () {\r",
+                  "  pm.expect(pm.response.text()).to.include(\"Not found\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/fake999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "fake999"
+              ]
+            },
+            "description": "**Negative Test – Invalid User ID**\n\nThis request verifies that the API correctly handles requests for non-existent resources by using a fake/invalid user ID (`fake999`).\n\n**Endpoint:** `GET https://69da7df626585bd92dd3ed90.mockapi.io/users/fake999`\n\n**Purpose:**\n- Confirms that the API returns a `404 Not Found` status when a user ID does not exist.\n- Validates that the response body contains the text `\"Not found\"`, ensuring the error message is consistent and machine-readable.\n\n**Test Assertions:**\n1. Status code is `404`.\n2. Response body includes the string `\"Not found\"`.\n\n**Use Case:**\nUse this request to validate error-handling behavior and ensure the API does not return a `200 OK` or unexpected data for invalid identifiers."
+          },
+          "response": []
+        }
+      ],
+      "description": "Contains API requests designed to validate error handling and edge cases across the MockAPI server. This folder tests how the API responds to invalid or unexpected inputs, including:\n\n- Requests with **missing or invalid IDs** (e.g., non-existent `productId` or `userId`)\n    \n- Requests with **malformed or incomplete request bodies**\n    \n- Requests that violate **business rules or constraints**\n    \n\nThe expected outcomes for these requests are error responses (e.g., `400 Bad Request`, `404 Not Found`), confirming that the API handles failures gracefully and returns meaningful error messages."
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "id",
+      "value": ""
+    },
+    {
+      "key": "baseUrl",
+      "value": ""
+    }
+  ]
+}

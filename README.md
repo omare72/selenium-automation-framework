@@ -38,3 +38,11 @@ npm test
 - Screenshot on failure
 - HTML test reports
 - Test retry on flaky failures
+
+## Test Summary
+
+| Test File           | Tests        | Coverage                                        |
+| ------------------- | ------------ | ----------------------------------------------- |
+| contactForm.test.js | 11 tests     | Functional, negative, edge, security, usability |
+| homePage.test.js    | 3 tests      | Navigation, visibility, title                   |
+| **Total**           | **14 tests** | **Multi-page coverage**                         |
